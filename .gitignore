@@ -1,0 +1,22 @@
+# Python-generated files
+.pytest_cache/
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# IDE junk
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# PDF ignore if needed
+/data/*.pdf

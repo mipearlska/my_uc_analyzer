@@ -1,0 +1,275 @@
+"""
+Data Models for ETSI AI-Agents Use Case Processing
+
+Defines Pydantic models for:
+1. Raw document parsing (sections, requirements)
+2. Processed use cases (structured summaries)
+3. Document chunks (for RAG retrieval)
+"""
+
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Optional
+from pydantic import BaseModel, Field
+
+# =============================================================================
+# Enums - Fixed sets of allowed values
+# =============================================================================
+
+class UseCaseCategory(str, Enum):
+    """
+    Categories based on ETSI document structure:
+    - Section 5.1.x = Consumer
+    - Section 5.2.x = Business
+    - Section 5.3.x = Operator
+    """
+    CONSUMER = "consumer"
+    BUSINESS = "business"
+    OPERATOR = "operator"
+
+
+class SectionType(str, Enum):
+    """Types of subsections within each use case."""
+    DESCRIPTION = "description"
+    REQUIREMENTS = "requirements"
+    OTHER = "other"
+
+# =============================================================================
+# Raw Document Models - What we extract from PDF
+# =============================================================================
+
+class Requirement(BaseModel):
+    """
+    A single requirement from the ETSI document.
+    
+    Example: [PR 5.1.1-1] The mobile network is used to contact AI-Core...
+    """
+    requirement_id: str = Field(
+        ...,  # ... means required, cannot be None
+        description="Requirement ID, e.g., PR 5.1.1-1"
+    )
+    use_case_id: str = Field(
+        ...,
+        description="Parent use case, e.g., 5.1.1"
+    )
+    text: str = Field(
+        ...,
+        description="Full requirement text"
+    )
+    page_number: Optional[int] = Field(
+        default=None,
+        description="Page where this requirement appears"
+    )
+
+class UsecaseSection(BaseModel):
+    """
+    A section from the PDF with hierarchy preserved.
+    
+    Example: Section 5.1.1.1 "Description" is a child of 5.1.1
+    """
+    section_id: str = Field(
+        ...,
+        description="Section number, e.g., 5.1.1.1"
+    )
+    parent_id: Optional[str] = Field(
+        default=None,
+        description="Parent section, e.g., 5.1.1"
+    )
+    title: str = Field(
+        ...,
+        description="Section title"
+    )
+    level: int = Field(
+        ...,
+        description="Hierarchy depth: 5.1.1.1 = level 4"
+    )
+    section_type: SectionType = Field(
+        default=SectionType.OTHER,
+        description="Type: description, requirements, or other"
+    )
+    content: str = Field(
+        default="",
+        description="Full text content of this section"
+    )
+    page_start: int = Field(
+        ...,
+        description="First page of this section"
+    )
+    page_end: int = Field(
+        ...,
+        description="Last page of this section"
+    )
+    requirements: list[Requirement] = Field(
+        default_factory=list,
+        description="Requirements found in this section"
+    )
+
+class DocumentChunk(BaseModel):
+    """
+    A chunk ready for embedding and vector storage.
+    
+    Chunks are section-aware: they don't split across logical boundaries.
+    """
+    chunk_id: str = Field(
+        ...,
+        description="Unique chunk identifier"
+    )
+    content: str = Field(
+        ...,
+        description="Text content to be embedded"
+    )
+    use_case_id: str = Field(
+        ...,
+        description="Parent use case: 5.1.1, 5.2.1, etc."
+    )
+    section_id: str = Field(
+        ...,
+        description="Source section: 5.1.1.1, 5.1.1.2, etc."
+    )
+    section_type: SectionType = Field(
+        ...,
+        description="Type of section this chunk comes from"
+    )
+    category: UseCaseCategory = Field(
+        ...,
+        description="Consumer, Business, or Operator"
+    )
+    page_start: int = Field(
+        ...,
+        description="First page of this chunk"
+    )
+    page_end: int = Field(
+        ...,
+        description="Last page of this chunk"
+    )
+    requirement_codes: list[str] = Field(
+        default_factory=list,
+        description="Requirement IDs mentioned: [PR 5.1.1-1, ...]"
+    )
+    token_count: int = Field(
+        default=0,
+        description="Approximate token count"
+    )
+
+# =============================================================================
+# Agent Output Models - What LLM agents produce
+# =============================================================================
+
+class ServiceFlowStep(BaseModel):
+    """A single step in the use case service flow."""
+    step_number: int = Field(
+        ...,
+        description="Step number: 1, 2, 3, etc."
+    )
+    description: str = Field(
+        ...,
+        description="What happens in this step"
+    )
+    actors_involved: list[str] = Field(
+        default_factory=list,
+        description="Actors participating in this step"
+    )
+
+
+class UseCaseSummary(BaseModel):
+    """
+    Structured summary generated by the Summarizer Agent.
+    
+    This schema forces the LLM to extract specific information
+    in a consistent format.
+    """
+    use_case_id: str = Field(
+        ...,
+        description="Use case ID: 5.1.1, 5.2.1, etc."
+    )
+    title: str = Field(
+        ...,
+        description="Use case title"
+    )
+    category: UseCaseCategory = Field(
+        ...,
+        description="Consumer, Business, or Operator"
+    )
+    
+    # Actors and entities
+    actors: list[str] = Field(
+        ...,
+        description="All actors: User, Robot, AI Agent, etc."
+    )
+    network_functions: list[str] = Field(
+        default_factory=list,
+        description="5G/6G functions: AMF, SMF, PCF, UPF, etc."
+    )
+    
+    # Summary
+    description: str = Field(
+        ...,
+        description="2-3 sentence summary of the use case"
+    )
+    problem_solved: str = Field(
+        default="",
+        description="What problem does this use case address?"
+    )
+    
+    # Service flow
+    service_flow: list[ServiceFlowStep] = Field(
+        default_factory=list,
+        description="Numbered steps from the service flow"
+    )
+    
+    # Requirements
+    requirement_ids: list[str] = Field(
+        default_factory=list,
+        description="List of requirement IDs: [PR 5.1.1-1, ...]"
+    )
+    
+    # Metadata
+    source_pages: list[int] = Field(
+        default_factory=list,
+        description="Pages where this use case appears"
+    )
+    generated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="When this summary was generated"
+    )
+
+
+# =============================================================================
+# Helper Functions
+# =============================================================================
+
+def get_use_case_category(section_id: str) -> UseCaseCategory:
+    """
+    Determine category from section ID.
+    
+    - 5.1.x -> Consumer
+    - 5.2.x -> Business
+    - 5.3.x -> Operator
+    
+    Example:
+        get_use_case_category("5.1.1") -> UseCaseCategory.CONSUMER
+        get_use_case_category("5.2.3") -> UseCaseCategory.BUSINESS
+    """
+    if section_id.startswith("5.1"):
+        return UseCaseCategory.CONSUMER
+    elif section_id.startswith("5.2"):
+        return UseCaseCategory.BUSINESS
+    elif section_id.startswith("5.3"):
+        return UseCaseCategory.OPERATOR
+    else:
+        raise ValueError(f"Unknown category for section: {section_id}")
+
+
+def get_parent_id(section_id: str) -> Optional[str]:
+    """
+    Get parent section ID by removing last level.
+    
+    Examples:
+        get_parent_id("5.1.1.1") -> "5.1.1"
+        get_parent_id("5.1.1") -> "5.1"
+        get_parent_id("5") -> None
+    """
+    parts = section_id.split(".")
+    if len(parts) <= 1:
+        return None
+    return ".".join(parts[:-1])
