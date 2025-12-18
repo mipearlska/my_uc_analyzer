@@ -9,6 +9,7 @@ wheels/
 
 # Virtual environments
 .venv
+.env
 
 # IDE junk
 .vscode/
@@ -18,5 +19,9 @@ wheels/
 .DS_Store
 Thumbs.db
 
-# PDF ignore if needed
+# data if needed
 /data/*.pdf
+data/chroma_db
+
+# test
+tests/

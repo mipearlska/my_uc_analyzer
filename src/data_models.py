@@ -2,9 +2,8 @@
 Data Models for ETSI AI-Agents Use Case Processing
 
 Defines Pydantic models for:
-1. Raw document parsing (sections, requirements)
-2. Processed use cases (structured summaries)
-3. Document chunks (for RAG retrieval)
+1. Document chunks (for RAG retrieval)
+2. Agent outputs (UseCaseSummary)
 """
 
 from datetime import datetime, timezone
@@ -12,8 +11,9 @@ from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, Field
 
+
 # =============================================================================
-# Enums - Fixed sets of allowed values
+# Enums
 # =============================================================================
 
 class UseCaseCategory(str, Enum):
@@ -29,86 +29,20 @@ class UseCaseCategory(str, Enum):
 
 
 class SectionType(str, Enum):
-    """Types of subsections within each use case."""
+    """Types of content within each use case."""
     DESCRIPTION = "description"
     REQUIREMENTS = "requirements"
-    OTHER = "other"
+
 
 # =============================================================================
-# Raw Document Models - What we extract from PDF
+# Document Chunk Model (for RAG)
 # =============================================================================
-
-class Requirement(BaseModel):
-    """
-    A single requirement from the ETSI document.
-    
-    Example: [PR 5.1.1-1] The mobile network is used to contact AI-Core...
-    """
-    requirement_id: str = Field(
-        ...,  # ... means required, cannot be None
-        description="Requirement ID, e.g., PR 5.1.1-1"
-    )
-    use_case_id: str = Field(
-        ...,
-        description="Parent use case, e.g., 5.1.1"
-    )
-    text: str = Field(
-        ...,
-        description="Full requirement text"
-    )
-    page_number: Optional[int] = Field(
-        default=None,
-        description="Page where this requirement appears"
-    )
-
-class UsecaseSection(BaseModel):
-    """
-    A section from the PDF with hierarchy preserved.
-    
-    Example: Section 5.1.1.1 "Description" is a child of 5.1.1
-    """
-    section_id: str = Field(
-        ...,
-        description="Section number, e.g., 5.1.1.1"
-    )
-    parent_id: Optional[str] = Field(
-        default=None,
-        description="Parent section, e.g., 5.1.1"
-    )
-    title: str = Field(
-        ...,
-        description="Section title"
-    )
-    level: int = Field(
-        ...,
-        description="Hierarchy depth: 5.1.1.1 = level 4"
-    )
-    section_type: SectionType = Field(
-        default=SectionType.OTHER,
-        description="Type: description, requirements, or other"
-    )
-    content: str = Field(
-        default="",
-        description="Full text content of this section"
-    )
-    page_start: int = Field(
-        ...,
-        description="First page of this section"
-    )
-    page_end: int = Field(
-        ...,
-        description="Last page of this section"
-    )
-    requirements: list[Requirement] = Field(
-        default_factory=list,
-        description="Requirements found in this section"
-    )
 
 class DocumentChunk(BaseModel):
     """
     A chunk ready for embedding and vector storage.
     
-    Chunks are section-aware: they don't split across logical boundaries.
+    This is the core model for RAG retrieval.
     """
     chunk_id: str = Field(
         ...,
@@ -122,13 +56,13 @@ class DocumentChunk(BaseModel):
         ...,
         description="Parent use case: 5.1.1, 5.2.1, etc."
     )
-    section_id: str = Field(
+    use_case_name: str = Field(
         ...,
-        description="Source section: 5.1.1.1, 5.1.1.2, etc."
+        description="Parent use case title"
     )
     section_type: SectionType = Field(
         ...,
-        description="Type of section this chunk comes from"
+        description="DESCRIPTION or REQUIREMENTS"
     )
     category: UseCaseCategory = Field(
         ...,
@@ -136,23 +70,20 @@ class DocumentChunk(BaseModel):
     )
     page_start: int = Field(
         ...,
-        description="First page of this chunk"
-    )
-    page_end: int = Field(
-        ...,
-        description="Last page of this chunk"
-    )
-    requirement_codes: list[str] = Field(
-        default_factory=list,
-        description="Requirement IDs mentioned: [PR 5.1.1-1, ...]"
+        description="Page where this chunk appears"
     )
     token_count: int = Field(
         default=0,
         description="Approximate token count"
     )
+    chunk_index: int = Field(
+        ...,
+        description="Position in document for ordering"
+    )
+
 
 # =============================================================================
-# Agent Output Models - What LLM agents produce
+# Agent Output Models (for Phase 2)
 # =============================================================================
 
 class ServiceFlowStep(BaseModel):
@@ -238,26 +169,22 @@ class UseCaseSummary(BaseModel):
 # Helper Functions
 # =============================================================================
 
-def get_use_case_category(section_id: str) -> UseCaseCategory:
+def get_use_case_category(use_case_id: str) -> UseCaseCategory:
     """
-    Determine category from section ID.
+    Determine category from use case ID.
     
     - 5.1.x -> Consumer
     - 5.2.x -> Business
     - 5.3.x -> Operator
-    
-    Example:
-        get_use_case_category("5.1.1") -> UseCaseCategory.CONSUMER
-        get_use_case_category("5.2.3") -> UseCaseCategory.BUSINESS
     """
-    if section_id.startswith("5.1"):
+    if use_case_id.startswith("5.1"):
         return UseCaseCategory.CONSUMER
-    elif section_id.startswith("5.2"):
+    elif use_case_id.startswith("5.2"):
         return UseCaseCategory.BUSINESS
-    elif section_id.startswith("5.3"):
+    elif use_case_id.startswith("5.3"):
         return UseCaseCategory.OPERATOR
     else:
-        raise ValueError(f"Unknown category for section: {section_id}")
+        raise ValueError(f"Unknown category for use case: {use_case_id}")
 
 
 def get_parent_id(section_id: str) -> Optional[str]:

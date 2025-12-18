@@ -1,0 +1,116 @@
+{
+  "5.1.1": {
+    "use_case_id": "5.1.1",
+    "use_case_name": "AI Agents to Enable Smart Life",
+    "lessons": [
+      {
+        "lesson": "Just a test text. No real lesson here",
+        "created_at": "2025-12-16T17:13:42.595257"
+      },
+      {
+        "lesson": "Implementing a standardized integration fabric that supports multiple interaction patterns, such as request-response and publish-subscribe, is crucial for enabling decoupled and scalable collaboration among AI agents.",
+        "created_at": "2025-12-18T11:20:51.786236"
+      },
+      {
+        "lesson": "Using a combination of authentication, opaque execution, and policy enforcement ensures the preservation of privacy when AI agents exchange information, and this approach can be applied to various multi-agent systems.",
+        "created_at": "2025-12-18T11:20:51.786740"
+      },
+      {
+        "lesson": "A high-level orchestrator agent responsible for end-to-end task management, utilizing formal planning techniques like Hierarchical Task Networks (HTNs), can effectively decompose complex tasks into manageable sub-tasks and delegate them to specialized agents.",
+        "created_at": "2025-12-18T11:20:51.787239"
+      }
+    ]
+  },
+  "5.3.5": {
+    "use_case_id": "5.3.5",
+    "use_case_name": "AI Agent-Based Core Networks to Enhance User Experience",
+    "lessons": [
+      {
+        "lesson": "Implementing a modular architecture with distinct agents for monitoring, analytics, and orchestration enables efficient data ingestion, problem identification, and remediation in AI-powered core networks.",
+        "created_at": "2025-12-18T11:41:53.143977"
+      },
+      {
+        "lesson": "A unified Knowledge Graph (KG) can effectively integrate cross-domain datasets, providing authorized agents with secure access to comprehensive data and facilitating informed decision-making.",
+        "created_at": "2025-12-18T11:41:53.144477"
+      },
+      {
+        "lesson": "Closed-loop assurance mechanisms, where agents continuously verify and refine their decision-making models based on remediation outcomes, are crucial for ensuring the effectiveness and adaptability of AI-driven core network optimization systems.",
+        "created_at": "2025-12-18T11:41:53.144977"
+      },
+      {
+        "lesson": "A modular architecture with distinct agents for monitoring, analytics, and orchestration can efficiently enable data ingestion, problem identification, and remediation in AI-powered core networks.",
+        "created_at": "2025-12-18T16:06:40.017391"
+      },
+      {
+        "lesson": "The integration of AI agents with network functions, such as PCF, SMF, and NWDAF, is crucial for effective dynamic configuration and policy adjustments, as well as lifecycle management of virtualized resources.",
+        "created_at": "2025-12-18T16:06:40.017891"
+      },
+      {
+        "lesson": "A closed-loop assurance mechanism, facilitated by continuous data ingestion and analysis, can help AI agents refine their decision-making models and ensure continuous improvement of user experience in core networks.",
+        "created_at": "2025-12-18T16:06:40.018388"
+      },
+      {
+        "lesson": "A modular architecture with distinct agents for monitoring, analytics, and orchestration enables efficient data ingestion, problem identification, and remediation in AI agent-based core networks.",
+        "created_at": "2025-12-18T16:56:07.725283"
+      },
+      {
+        "lesson": "The integration of a Knowledge Graph provides a unified, queryable access to cross-domain data, facilitating complex analytics and decision-making in AI-driven core network optimization.",
+        "created_at": "2025-12-18T16:56:07.726283"
+      },
+      {
+        "lesson": "The implementation of a closed-loop assurance mechanism ensures continuous verification and refinement of optimization actions based on performance outcomes, leading to improved user experience and adaptive decision-making.",
+        "created_at": "2025-12-18T16:56:07.726783"
+      }
+    ]
+  },
+  "5.1.2": {
+    "use_case_id": "5.1.2",
+    "use_case_name": "Network-Assisted Collaborative Robots",
+    "lessons": []
+  },
+  "5.1.3": {
+    "use_case_id": "5.1.3",
+    "use_case_name": "AI Phone",
+    "lessons": []
+  },
+  "5.2.1": {
+    "use_case_id": "5.2.1",
+    "use_case_name": "AI Agent-based Customized Network for Smart City Traffic Monitoring",
+    "lessons": []
+  },
+  "5.2.2": {
+    "use_case_id": "5.2.2",
+    "use_case_name": "AI Agents-Based Customized Network for Smart Construction Sites",
+    "lessons": []
+  },
+  "5.2.3": {
+    "use_case_id": "5.2.3",
+    "use_case_name": "AI Agent Ensuring Game Acceleration Experience",
+    "lessons": []
+  },
+  "5.2.4": {
+    "use_case_id": "5.2.4",
+    "use_case_name": "AI Agent-Assisted Collaborative Energy Distribution in Power Enterprises",
+    "lessons": []
+  },
+  "5.3.1": {
+    "use_case_id": "5.3.1",
+    "use_case_name": "AI Agent-Based Autonomous Network Management",
+    "lessons": []
+  },
+  "5.3.2": {
+    "use_case_id": "5.3.2",
+    "use_case_name": "AI Agent-Based Disaster Handling Network Management",
+    "lessons": []
+  },
+  "5.3.3": {
+    "use_case_id": "5.3.3",
+    "use_case_name": "AI Agent-Based Time-Sensitive Network Management",
+    "lessons": []
+  },
+  "5.3.4": {
+    "use_case_id": "5.3.4",
+    "use_case_name": "AI Agent-Driven Core Network Signalling Optimization",
+    "lessons": []
+  }
+}
