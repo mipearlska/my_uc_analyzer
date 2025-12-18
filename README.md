@@ -1,4 +1,4 @@
-# ETSI Use Case Design System
+# Langgraph 1st project
 
 A learning project exploring modern AI/LLM patterns through a practical application: designing AI agentic systems based on an PDF telco use cases study document
 
