@@ -176,6 +176,7 @@ uv run python src/agents/feedback_agent.py
 uv run python src/agents/graph.py
 
 # Test streamlit ui
+```
 uv run uvicorn src.api.main:app --reload --port 8000
 uv run streamlit run src/web/app.py --server.port 8501
 ```
